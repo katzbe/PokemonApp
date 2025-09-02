@@ -9,7 +9,7 @@ import PokemonDetailsScreen from '../screens/PokemonDetailsScreen';
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Home',
   screens: {
-    Home: HomeScreen,
+    Home: { options: { headerShown: false }, screen: HomeScreen },
     PokemonDetails: PokemonDetailsScreen,
   },
 });
