@@ -1,20 +1,14 @@
 import { useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, Text, View } from 'react-native';
 import axios from 'axios';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PokemonListResponse, PokemonWithImage } from '../types';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
 import { getIdFromUrl, officialArtwork } from '../utils';
+import PokemonsList from '../components/PokemonsList';
+import { API_URL } from '../constants/api';
 
 export default function HomeScreen() {
-  // const navigation = useNavigation();
-
-  const { bottom } = useSafeAreaInsets();
-
   const [pokemons, setPokemons] = useState<PokemonWithImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -23,9 +17,7 @@ export default function HomeScreen() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get<PokemonListResponse>(
-          'https://pokeapi.co/api/v2/pokemon',
-        );
+        const response = await axios.get<PokemonListResponse>(API_URL);
         const mapped = response.data.results.map(p => {
           const id = getIdFromUrl(p.url);
           return { ...p, id, image: officialArtwork(id) };
@@ -41,19 +33,6 @@ export default function HomeScreen() {
     };
     fetchData();
   }, []);
-
-  function renderItem({ item }: { item: PokemonWithImage }) {
-    return (
-      <View style={styles.listItem}>
-        <Image
-          source={{ uri: item.image }}
-          resizeMode="contain"
-          style={{ flex: 1 }}
-        />
-        <Text style={styles.listItemText}>{item.name}</Text>
-      </View>
-    );
-  }
 
   if (isLoading) {
     return (
@@ -73,18 +52,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <FlatList
-        contentContainerStyle={[
-          styles.listContentContainer,
-          { paddingBottom: bottom },
-        ]}
-        columnWrapperStyle={styles.listColumnWrapper}
-        numColumns={2}
-        data={pokemons}
-        keyExtractor={item => item.name}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-      />
+      <PokemonsList pokemons={pokemons} />
     </SafeAreaView>
   );
 }
@@ -92,20 +60,5 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  listColumnWrapper: { gap: 16 },
-  listContentContainer: {
-    padding: 16,
-    gap: 26,
-  },
-  listItem: {
-    flex: 1,
-    height: 250,
-    borderRadius: 20,
-    backgroundColor: '#B7E4C7',
-    alignItems: 'center',
-  },
-  listItemText: {
-    fontSize: 18,
   },
 });

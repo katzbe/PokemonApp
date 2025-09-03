@@ -3,16 +3,22 @@ import {
   StaticParamList,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import HomeScreen from '../screens/HomeScreen';
 import PokemonDetailsScreen from '../screens/PokemonDetailsScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Home',
+  screenOptions: {
+    headerShown: false,
+  },
   screens: {
-    Home: { options: { headerShown: false }, screen: HomeScreen },
+    Home: HomeScreen,
     PokemonDetails: PokemonDetailsScreen,
   },
 });
+
+const Navigation = createStaticNavigation(RootStack);
 
 type RootStackParamList = StaticParamList<typeof RootStack>;
 
@@ -21,7 +27,5 @@ declare global {
     interface RootParamList extends RootStackParamList {}
   }
 }
-
-const Navigation = createStaticNavigation(RootStack);
 
 export default Navigation;
