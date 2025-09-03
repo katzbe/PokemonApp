@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
 // import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
-import { PokemonEntry, PokemonListResponse } from '../types';
+import { PokemonListResponse, PokemonWithImage } from '../types';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import { getIdFromUrl, officialArtwork } from '../utils';
 
 export default function HomeScreen() {
   // const navigation = useNavigation();
 
   const { bottom } = useSafeAreaInsets();
 
-  const [pokemons, setPokemons] = useState<PokemonEntry[]>([]);
+  const [pokemons, setPokemons] = useState<PokemonWithImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -25,7 +26,11 @@ export default function HomeScreen() {
         const response = await axios.get<PokemonListResponse>(
           'https://pokeapi.co/api/v2/pokemon',
         );
-        setPokemons(response.data.results);
+        const mapped = response.data.results.map(p => {
+          const id = getIdFromUrl(p.url);
+          return { ...p, id, image: officialArtwork(id) };
+        });
+        setPokemons(mapped);
         setIsLoading(false);
       } catch (err) {
         __DEV__ && console.error(`Error with fetching pokemons... ${err}`);
@@ -37,9 +42,14 @@ export default function HomeScreen() {
     fetchData();
   }, []);
 
-  function renderItem({ item }: { item: PokemonEntry }) {
+  function renderItem({ item }: { item: PokemonWithImage }) {
     return (
       <View style={styles.listItem}>
+        <Image
+          source={{ uri: item.image }}
+          resizeMode="contain"
+          style={{ flex: 1 }}
+        />
         <Text style={styles.listItemText}>{item.name}</Text>
       </View>
     );

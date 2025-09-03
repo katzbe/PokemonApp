@@ -3,6 +3,8 @@ export type PokemonEntry = {
   url: string;
 };
 
+export type PokemonWithImage = PokemonEntry & { id: number; image: string };
+
 export type PokemonListResponse = {
   count: number;
   next: string | null;
